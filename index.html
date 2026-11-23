@@ -22,20 +22,18 @@
 </head>
 <body class="text-white min-h-screen flex items-center justify-center p-4 no-select overflow-hidden">
 
-  <!-- Latar Belakang Dinamis -->
   <div id="app-background"></div>
 
-  <!-- Main Container -->
   <div id="main-container" class="glass-panel w-full max-w-4xl rounded-3xl p-3 md:p-10 relative flex flex-col h-[98vh] md:h-auto md:max-h-[95vh] transition-all duration-500 transform scale-95 opacity-0">
     
-    <!-- Loading Spinner -->
-    <div id="loading-screen" class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 rounded-3xl">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 rounded-3xl p-4 text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white mb-4"></div>
       <p id="loading-text" class="animate-pulse text-lg tracking-wider">Menyiapkan Misi...</p>
     </div>
 
     <!-- Halaman 1: Welcome -->
-    <div id="page-welcome" class="hidden flex flex-col items-center text-center space-y-6 flex-1 justify-center overflow-y-auto">
+    <div id="page-welcome" class="hidden flex-col items-center text-center space-y-6 flex-1 justify-center overflow-y-auto">
       <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2 flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
       </div>
@@ -43,20 +41,20 @@
       <p class="text-xl md:text-2xl font-light text-gray-300">Sistem Tes Formatif Terpadu</p>
       <div class="py-4 border-y border-white border-opacity-20 w-full max-w-lg">
         <h2 id="judul-materi" class="text-xl md:text-2xl font-semibold text-yellow-400 drop-shadow-md">Memuat...</h2>
-        <p id="mode-badge" class="text-xs text-gray-400 mt-1"></p>
+        <p id="info-sync" class="text-xs text-gray-400 mt-1"></p>
       </div>
       <div class="flex flex-wrap justify-center gap-3 mt-4">
         <button onclick="goToPage('identity')" class="px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-yellow-400 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2">
           Mulai Misi <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
         </button>
-        <button onclick="reloadSpreadsheetData()" class="px-5 py-4 bg-white bg-opacity-10 border border-white border-opacity-25 text-white font-semibold rounded-full hover:bg-opacity-20 transition-all text-sm">
-          Muat Ulang Soal
+        <button onclick="syncFromSpreadsheet()" class="px-5 py-4 bg-white bg-opacity-10 border border-white border-opacity-25 text-white font-semibold rounded-full hover:bg-opacity-20 transition-all text-sm">
+          Sinkronkan Soal
         </button>
       </div>
     </div>
 
     <!-- Halaman 2: Identitas -->
-    <div id="page-identity" class="hidden flex flex-col space-y-4 flex-1 justify-center max-w-2xl mx-auto w-full">
+    <div id="page-identity" class="hidden flex-col space-y-4 flex-1 justify-center max-w-2xl mx-auto w-full">
       <h2 class="text-2xl font-bold border-b border-white border-opacity-20 pb-4">Verifikasi & Pengaturan</h2>
       <div class="space-y-4">
         <div>
@@ -65,7 +63,6 @@
             <option value="">-- Pilih Materi Ujian --</option>
           </select>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Pilih Kelas</label>
           <select id="select-kelas" onchange="filterNama()" class="w-full bg-black bg-opacity-50 border border-gray-600 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 text-white appearance-none">
@@ -91,17 +88,17 @@
       </div>
     </div>
 
-    <!-- Halaman 3: Area Tes (CBT Layout) -->
-    <div id="page-test" class="hidden flex flex-col flex-1 overflow-hidden h-full">
+    <!-- Halaman 3: Area Tes -->
+    <div id="page-test" class="hidden flex-col flex-1 overflow-hidden h-full">
       <div class="flex justify-between items-start md:items-center border-b border-red-500 pb-3 flex-shrink-0 flex-col md:flex-row gap-2">
         <div class="w-full md:w-auto flex justify-between items-center">
-            <div>
-              <h2 class="text-xl font-bold text-red-400 flex items-center gap-2">
-                <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
-                KEAMANAN AKTIF
-              </h2>
-              <p class="text-xs text-gray-400 hidden md:block" id="display-materi-aktif">Materi Ujian Aktif</p>
-            </div>
+          <div>
+            <h2 class="text-xl font-bold text-red-400 flex items-center gap-2">
+              <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
+              KEAMANAN AKTIF
+            </h2>
+            <p class="text-xs text-gray-400 hidden md:block" id="display-materi-aktif">Materi Ujian Aktif</p>
+          </div>
         </div>
         <div class="text-left md:text-right w-full md:w-auto flex justify-between items-center md:flex-col md:items-end bg-black bg-opacity-30 md:bg-transparent p-2 md:p-0 rounded-lg">
           <div>
@@ -115,28 +112,25 @@
         </div>
       </div>
 
-      <!-- TIMER & PROGRESS INFO -->
       <div class="flex justify-between items-center bg-white bg-opacity-5 p-2 md:p-3 rounded-xl border border-white border-opacity-10 mt-2 md:mt-3 flex-shrink-0">
         <div id="display-progress" class="font-bold text-gray-300 text-xs md:text-base">Soal - dari -</div>
         <div class="flex items-center gap-1 md:gap-2 bg-red-900 bg-opacity-30 px-2 md:px-3 py-1 rounded-lg border border-red-500 border-opacity-30">
-           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 text-red-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-           <div id="display-timer" class="text-lg md:text-2xl font-mono text-red-400 font-bold tracking-wider">00:00</div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 text-red-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div id="display-timer" class="text-lg md:text-2xl font-mono text-red-400 font-bold tracking-wider">00:00</div>
         </div>
       </div>
 
-      <!-- PANEL NAVIGASI NOMOR SOAL -->
       <div class="mt-2 md:mt-3 flex-shrink-0">
         <div class="flex justify-between items-end mb-1">
           <p class="text-xs text-gray-400 font-semibold">Navigasi Soal (Geser untuk soal lain):</p>
           <div class="flex gap-2">
-             <div class="flex items-center gap-1 text-[10px] text-gray-400"><span class="w-2 h-2 bg-green-600 rounded-full"></span> Dijawab</div>
-             <div class="flex items-center gap-1 text-[10px] text-gray-400"><span class="w-2 h-2 bg-gray-700 rounded-full"></span> Belum</div>
+            <div class="flex items-center gap-1 text-[10px] text-gray-400"><span class="w-2 h-2 bg-green-600 rounded-full"></span> Dijawab</div>
+            <div class="flex items-center gap-1 text-[10px] text-gray-400"><span class="w-2 h-2 bg-gray-700 rounded-full"></span> Belum</div>
           </div>
         </div>
         <div id="grid-nav" class="flex flex-row overflow-x-auto gap-2 py-2 pr-2 snap-x"></div>
       </div>
 
-      <!-- AREA PERTANYAAN DAN JAWABAN (DIPISAH) -->
       <div class="flex flex-col flex-1 mt-2 md:mt-3 bg-black bg-opacity-40 rounded-2xl border border-white border-opacity-10 overflow-hidden min-h-0">
         <div class="bg-gray-800 bg-opacity-80 p-3 md:p-6 border-b border-gray-600 flex-shrink-0 max-h-[55%] overflow-y-auto shadow-md relative z-10">
           <p id="question-text" class="font-medium text-sm md:text-lg leading-relaxed text-gray-100 animate-fade-in break-words"></p>
@@ -144,15 +138,14 @@
         <div id="options-area" class="overflow-y-auto flex-1 p-3 md:p-5 space-y-2 md:space-y-3 relative"></div>
       </div>
 
-      <!-- TOMBOL SEBELUMNYA & SELANJUTNYA -->
       <div id="nav-buttons" class="pt-2 md:pt-4 mt-1 flex justify-between gap-3 md:gap-4 flex-shrink-0"></div>
     </div>
 
   </div>
 
   <script>
-    // Ganti dengan URL Web App Google Apps Script Anda (akhiran /exec)
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz8FJPb0se41eGPZ4CXcDepFVKxQSarXYR2btAtIv0Gd0Basvo5iecJbL7xtoOtlggX/exec";
+    // Masukkan URL Web App Google Apps Script Anda (akhiran /exec)
+    const GAS_WEB_APP_URL = "MASUKKAN_URL_WEB_APP_ANDA";
 
     let appData = {};
     let isTestActive = false;
@@ -189,41 +182,53 @@
       return array;
     }
 
-    function loadLiveData() {
+    function syncFromSpreadsheet() {
       document.getElementById('loading-screen').classList.remove('hidden');
       document.querySelector('.animate-spin').classList.remove('hidden');
-      document.getElementById('loading-text').innerText = "Menyinkronkan soal terbaru dari Spreadsheet...";
+      document.getElementById('loading-text').innerText = "Mengambil data terbaru dari Spreadsheet...";
 
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run
-          .withSuccessHandler((data) => initializeUI(data, "Google Apps Script (Live)"))
-          .withFailureHandler(showError)
-          .getAppData();
+      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("https://script.google.com/macros/s/AKfycbw_ueURBuGCO8Yj7InAa52K_eHVcy6Q7tvrF1yQKKH7xjJqp77ocA2kEOKNivHD29FC/exec")) {
+        showError("URL Web App Google Apps Script belum diisi pada GAS_WEB_APP_URL.");
         return;
       }
 
-      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("MASUKKAN_URL_WEB_APP")) {
-        showError(new Error("URL Web App Google Apps Script belum diisi pada variabel GAS_WEB_APP_URL."));
-        return;
-      }
+      const callbackName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+      const timeoutId = setTimeout(() => {
+        if (window[callbackName]) {
+          delete window[callbackName];
+          showError("Waktu habis saat memuat data dari Spreadsheet. Pastikan Web App di-deploy untuk 'Anyone'.");
+        }
+      }, 15000);
 
-      const freshUrl = `${GAS_WEB_APP_URL}${GAS_WEB_APP_URL.includes('?') ? '&' : '?'}mode=json&t=${Date.now()}`;
-      fetch(freshUrl, { method: 'GET', cache: 'no-store' })
-        .then(res => {
-          if (!res.ok) throw new Error("Gagal terhubung ke server Web App.");
-          return res.json();
-        })
-        .then(data => initializeUI(data, "Spreadsheet Langsung"))
-        .catch(err => showError(err));
-    }
+      window[callbackName] = function(response) {
+        clearTimeout(timeoutId);
+        delete window[callbackName];
+        if (scriptEl && scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
 
-    function reloadSpreadsheetData() {
-      playClickSound();
-      loadLiveData();
+        if (!response) {
+          showError("Respons kosong dari server.");
+          return;
+        }
+        if (response.error) {
+          showError(response.error);
+          return;
+        }
+        initializeUI(response);
+      };
+
+      const scriptEl = document.createElement("script");
+      const sep = GAS_WEB_APP_URL.indexOf("?") === -1 ? "?" : "&";
+      scriptEl.src = `${GAS_WEB_APP_URL}${sep}mode=json&callback=${callbackName}&t=${Date.now()}`;
+      scriptEl.onerror = function() {
+        clearTimeout(timeoutId);
+        delete window[callbackName];
+        showError("Gagal memuat data dari Web App. Periksa izin akses 'Anyone' dan URL /exec.");
+      };
+      document.body.appendChild(scriptEl);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadLiveData();
+      syncFromSpreadsheet();
       setTimeout(() => {
         const container = document.getElementById('main-container');
         container.classList.remove('scale-95', 'opacity-0');
@@ -232,39 +237,38 @@
       setupSecurity();
     });
 
-    function showError(error) {
-      console.error(error);
-      const msg = error && error.message ? error.message : String(error);
-      document.getElementById('loading-text').innerHTML = `<span class="text-red-500 font-bold">Gagal Mengambil Data!</span><br><span class="text-sm text-gray-300">${msg}</span>`;
+    function showError(msg) {
+      const text = (msg && msg.message) ? msg.message : String(msg);
+      document.getElementById('loading-text').innerHTML = `<span class="text-red-400 font-bold">Gagal Terhubung!</span><br><span class="text-sm text-gray-300">${text}</span>`;
       document.querySelector('.animate-spin').classList.add('hidden');
-      Swal.fire({ icon: 'error', title: 'Error', text: msg, background: '#1a202c', color: '#fff' });
+      Swal.fire({ icon: 'error', title: 'Error', text: text, background: '#1a202c', color: '#fff' });
     }
 
-    function initializeUI(data, modeLabel = "") {
+    function initializeUI(data) {
       appData = data;
       document.getElementById('loading-screen').classList.add('hidden');
       document.getElementById('page-welcome').classList.remove('hidden');
       document.getElementById('page-welcome').classList.add('flex');
       document.getElementById('judul-materi').innerText = data.pengaturan.materiUmum;
-      if (modeLabel) document.getElementById('mode-badge').innerText = `Terhubung: ${modeLabel} • Total Soal: ${data.soal.length}`;
+      document.getElementById('info-sync').innerText = `Tersinkronisasi • ${data.soal.length} Soal • Durasi ${data.pengaturan.waktu} Menit`;
       document.getElementById('app-background').style.backgroundImage = `url('${data.pengaturan.backgroundUrl}')`;
 
       const selectKelas = document.getElementById('select-kelas');
       selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-      data.kelas.forEach(k => {
-        const option = document.createElement('option');
-        option.value = k;
-        option.innerText = k;
-        selectKelas.appendChild(option);
+      (data.kelas || []).forEach(k => {
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.innerText = k;
+        selectKelas.appendChild(opt);
       });
 
       const selectMateri = document.getElementById('select-materi');
       selectMateri.innerHTML = '<option value="">-- Pilih Materi Ujian --</option>';
-      data.materiList.forEach(m => {
-        const option = document.createElement('option');
-        option.value = m;
-        option.innerText = m;
-        selectMateri.appendChild(option);
+      (data.materiList || []).forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.innerText = m;
+        selectMateri.appendChild(opt);
       });
     }
 
@@ -284,19 +288,19 @@
       const kelasSelected = document.getElementById('select-kelas').value;
       const selectNama = document.getElementById('select-nama');
       const inputAbsen = document.getElementById('input-absen');
-      
+
       selectNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
       inputAbsen.value = '';
-      
+
       if (kelasSelected) {
         selectNama.disabled = false;
-        const siswaKelas = appData.siswaData.filter(s => s.kelas === kelasSelected);
+        const siswaKelas = (appData.siswaData || []).filter(s => s.kelas === kelasSelected);
         siswaKelas.forEach(s => {
-          const option = document.createElement('option');
-          option.value = s.nama;
-          option.innerText = s.nama;
-          option.dataset.absen = s.absen;
-          selectNama.appendChild(option);
+          const opt = document.createElement('option');
+          opt.value = s.nama;
+          opt.innerText = s.nama;
+          opt.dataset.absen = s.absen;
+          selectNama.appendChild(opt);
         });
       } else {
         selectNama.disabled = true;
@@ -307,8 +311,7 @@
       const selectNama = document.getElementById('select-nama');
       const inputAbsen = document.getElementById('input-absen');
       const selectedOption = selectNama.options[selectNama.selectedIndex];
-      if (selectedOption && selectedOption.value !== "") inputAbsen.value = selectedOption.dataset.absen;
-      else inputAbsen.value = "";
+      inputAbsen.value = (selectedOption && selectedOption.value !== "") ? selectedOption.dataset.absen : "";
     }
 
     function startTest() {
@@ -321,13 +324,13 @@
         return;
       }
 
-      filteredSoal = appData.soal.filter(s => {
-        const targetKelas = s.kelasTarget.toUpperCase().trim();
+      filteredSoal = (appData.soal || []).filter(s => {
+        const targetKelas = String(s.kelasTarget || '').toUpperCase().trim();
         const kelasPilih = kelas.toUpperCase().trim();
         const tingkatKelas = kelasPilih.split(/[\s-.]/)[0];
         const matchKelas = targetKelas === kelasPilih || targetKelas === tingkatKelas || targetKelas === 'SEMUA' || targetKelas === '';
 
-        const targetMateri = s.materiTarget.toUpperCase().trim();
+        const targetMateri = String(s.materiTarget || '').toUpperCase().trim();
         const materiPilih = materi.toUpperCase().trim();
         const matchMateri = targetMateri === materiPilih || targetMateri === 'SEMUA' || targetMateri === '';
 
@@ -359,7 +362,7 @@
       renderQuestion();
       isTestActive = true;
       goToPage('test');
-      
+
       Swal.fire({
         title: 'PERINGATAN KEAMANAN',
         html: 'Ujian dimulai.<br><b>DILARANG</b>:<br>- Copy/Paste<br>- Keluar tab peramban<br><br>Pelanggaran = Ujian Langsung Selesai otomatis!',
@@ -369,14 +372,13 @@
 
     function startTimer() {
       clearInterval(timerInterval);
-      const menit = parseInt(appData.pengaturan.waktu, 10) || 60;
+      const menit = parseInt(appData.pengaturan.waktu, 10) || 30;
       timeRemaining = menit * 60;
       updateTimerUI();
 
       timerInterval = setInterval(() => {
         timeRemaining--;
         updateTimerUI();
-
         if (timeRemaining <= 0) {
           clearInterval(timerInterval);
           triggerAutoSubmit("WAKTU UJIAN TELAH HABIS!");
@@ -393,9 +395,8 @@
     function renderQuestion() {
       const item = filteredSoal[currentQuestionIndex];
       const formatTeks = (teks) => teks ? teks.replace(/\n/g, '<br>') : '';
-      
+
       let questionHtml = `<span class="text-yellow-400 font-bold">${currentQuestionIndex + 1}.</span> ${formatTeks(item.pertanyaan)}`;
-      
       if (item.gambar && item.gambar.startsWith('http')) {
         questionHtml += `
           <div class="mt-3 flex justify-center">
@@ -403,12 +404,11 @@
           </div>
         `;
       }
-      
+
       document.getElementById('question-text').innerHTML = questionHtml;
-      
+
       const optionsArea = document.getElementById('options-area');
       let optionsHtml = '';
-      
       item.shuffledKeys.forEach(letter => {
         const isChecked = item.jawabanSiswa === letter ? 'checked' : '';
         optionsHtml += `
@@ -422,6 +422,7 @@
           </label>
         `;
       });
+
       optionsArea.innerHTML = optionsHtml;
       optionsArea.scrollTop = 0;
       document.getElementById('display-progress').innerText = `Soal ${currentQuestionIndex + 1} dari ${filteredSoal.length}`;
@@ -433,12 +434,12 @@
     function renderGridNav() {
       const grid = document.getElementById('grid-nav');
       grid.innerHTML = '';
-      
+
       filteredSoal.forEach((s, idx) => {
         const isAnswered = s.jawabanSiswa != null;
         const isCurrent = idx === currentQuestionIndex;
         let classes = "w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-sm md:text-base cursor-pointer transition-all snap-center ";
-        
+
         if (isCurrent) classes += "bg-yellow-500 text-black border-2 border-white scale-105 shadow-lg";
         else if (isAnswered) classes += "bg-green-600 text-white hover:bg-green-500";
         else classes += "bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700";
@@ -455,14 +456,10 @@
       const isFirst = currentQuestionIndex === 0;
       const isLast = currentQuestionIndex === filteredSoal.length - 1;
 
-      let btnPrev = `<button onclick="prevQuestion()" class="flex-1 py-2 md:py-4 bg-gray-700 text-white font-bold rounded-xl hover:bg-gray-600 transition-all text-sm md:text-base ${isFirst ? 'opacity-50 cursor-not-allowed' : ''}" ${isFirst ? 'disabled' : ''}>Kembali</button>`;
-      
-      let btnNext = '';
-      if (!isLast) {
-        btnNext = `<button onclick="nextQuestion()" class="flex-1 py-2 md:py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-all shadow-lg text-sm md:text-base">Selanjutnya</button>`;
-      } else {
-        btnNext = `<button onclick="confirmSubmit()" class="flex-1 py-2 md:py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 transition-all shadow-lg flex justify-center items-center gap-2 text-sm md:text-base">Kirim <span class="hidden md:inline">Jawaban</span> <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></button>`;
-      }
+      const btnPrev = `<button onclick="prevQuestion()" class="flex-1 py-2 md:py-4 bg-gray-700 text-white font-bold rounded-xl hover:bg-gray-600 transition-all text-sm md:text-base ${isFirst ? 'opacity-50 cursor-not-allowed' : ''}" ${isFirst ? 'disabled' : ''}>Kembali</button>`;
+      const btnNext = !isLast
+        ? `<button onclick="nextQuestion()" class="flex-1 py-2 md:py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-all shadow-lg text-sm md:text-base">Selanjutnya</button>`
+        : `<button onclick="confirmSubmit()" class="flex-1 py-2 md:py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 transition-all shadow-lg flex justify-center items-center gap-2 text-sm md:text-base">Kirim <span class="hidden md:inline">Jawaban</span> <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></button>`;
 
       navButtons.innerHTML = `${btnPrev}${btnNext}`;
     }
@@ -518,7 +515,7 @@
       isTestActive = false;
       clearInterval(timerInterval);
       playWarningSound();
-      
+
       Swal.fire({
         icon: 'error', title: 'SISTEM MENGUNCI', text: reason, allowOutsideClick: false, showConfirmButton: false, background: '#7f1d1d', color: '#fff',
         didOpen: () => { Swal.showLoading(); executeSubmit('Dihentikan Sistem: ' + reason); }
@@ -558,7 +555,7 @@
     function confirmSubmit() {
       playClickSound();
       const unanswered = filteredSoal.filter(s => !s.jawabanSiswa).length;
-      
+
       if (unanswered > 0) {
         Swal.fire({
           title: 'Belum Selesai!', text: `Masih ada ${unanswered} soal yang BELUM dijawab. Silakan lengkapi semua jawaban sebelum mengirim.`, icon: 'warning', confirmButtonColor: '#eab308', confirmButtonText: 'Lanjutkan', background: '#1a202c', color: '#fff'
@@ -581,7 +578,7 @@
     function executeSubmit(statusText) {
       const jawabanArr = [];
       const sortedSoal = [...filteredSoal].sort((a, b) => a.idSoal - b.idSoal);
-      sortedSoal.forEach((item) => {
+      sortedSoal.forEach(item => {
         jawabanArr.push({ idSoal: item.idSoal, jawaban: item.jawabanSiswa ? item.jawabanSiswa : '- Kosong -' });
       });
 
@@ -596,23 +593,16 @@
         jawaban: jawabanArr
       };
 
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(onSuccessSubmit).withFailureHandler(showError).submitAnswers(payload);
-      } else {
-        fetch(GAS_WEB_APP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        })
-        .then(() => {
-          onSuccessSubmit({
-            success: true,
-            message: 'Jawaban telah dikirim ke Google Spreadsheet.'
-          });
-        })
-        .catch(err => showError(err));
-      }
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        onSuccessSubmit({ success: true, message: 'Jawaban telah dikirim ke Google Spreadsheet.' });
+      })
+      .catch(err => showError(err));
     }
 
     function onSuccessSubmit(response) {
@@ -624,7 +614,7 @@
           currentQuestionIndex = 0; filteredSoal = []; goToPage('welcome');
         });
       } else {
-        Swal.fire('Error', 'Gagal: ' + response.message, 'error');
+        showError(response.message);
       }
     }
   </script>
