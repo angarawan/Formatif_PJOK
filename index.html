@@ -1,151 +1,632 @@
-const SPREADSHEET_ID = '1iIWQ_Kbqk3vraXWxan2SwBiRGhGD5YI9ODfTTJJmuVY';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tes Formatif PJOK</title>
+  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #1a202c; }
+    .glass-panel { background: rgba(20, 20, 20, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+    .no-select { user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+    #app-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-size: cover; background-position: center; background-attachment: fixed; z-index: -1; filter: brightness(0.6); transition: background-image 1s ease-in-out; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  </style>
+</head>
+<body class="text-white min-h-screen flex items-center justify-center p-4 no-select overflow-hidden">
 
-function doGet(e) {
-  if (e && e.parameter && e.parameter.mode === 'json') {
-    const data = getAppData();
-    return ContentService.createTextOutput(JSON.stringify(data))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+  <!-- Latar Belakang Dinamis -->
+  <div id="app-background"></div>
 
-  return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('Tes Formatif PJOK')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}
+  <!-- Main Container -->
+  <div id="main-container" class="glass-panel w-full max-w-4xl rounded-3xl p-3 md:p-10 relative flex flex-col h-[98vh] md:h-auto md:max-h-[95vh] transition-all duration-500 transform scale-95 opacity-0">
+    
+    <!-- Loading Spinner -->
+    <div id="loading-screen" class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 rounded-3xl">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white mb-4"></div>
+      <p id="loading-text" class="animate-pulse text-lg tracking-wider">Menyiapkan Misi...</p>
+    </div>
 
-function doPost(e) {
-  try {
-    const payload = JSON.parse(e.postData.contents);
-    const result = submitAnswers(payload);
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({
-      success: false,
-      message: err.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
+    <!-- Halaman 1: Welcome -->
+    <div id="page-welcome" class="hidden flex flex-col items-center text-center space-y-6 flex-1 justify-center overflow-y-auto">
+      <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2 flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-bold tracking-tight">Selamat Datang</h1>
+      <p class="text-xl md:text-2xl font-light text-gray-300">Sistem Tes Formatif Terpadu</p>
+      <div class="py-4 border-y border-white border-opacity-20 w-full max-w-lg">
+        <h2 id="judul-materi" class="text-xl md:text-2xl font-semibold text-yellow-400 drop-shadow-md">Memuat...</h2>
+        <p id="mode-badge" class="text-xs text-gray-400 mt-1"></p>
+      </div>
+      <div class="flex flex-wrap justify-center gap-3 mt-4">
+        <button onclick="goToPage('identity')" class="px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-yellow-400 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2">
+          Mulai Misi <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+        </button>
+        <button onclick="reloadSpreadsheetData()" class="px-5 py-4 bg-white bg-opacity-10 border border-white border-opacity-25 text-white font-semibold rounded-full hover:bg-opacity-20 transition-all text-sm">
+          Muat Ulang Soal
+        </button>
+      </div>
+    </div>
 
-function getAppData() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    <!-- Halaman 2: Identitas -->
+    <div id="page-identity" class="hidden flex flex-col space-y-4 flex-1 justify-center max-w-2xl mx-auto w-full">
+      <h2 class="text-2xl font-bold border-b border-white border-opacity-20 pb-4">Verifikasi & Pengaturan</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-yellow-400 mb-1">Materi Ujian</label>
+          <select id="select-materi" class="w-full bg-black bg-opacity-50 border border-yellow-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-white appearance-none cursor-pointer">
+            <option value="">-- Pilih Materi Ujian --</option>
+          </select>
+        </div>
 
-  // 1. Ambil Pengaturan
-  const sheetPengaturan = ss.getSheetByName('Pengaturan');
-  if (!sheetPengaturan) throw new Error("Sheet 'Pengaturan' tidak ditemukan.");
-  const dataPengaturan = sheetPengaturan.getRange(2, 1, 3, 2).getValues();
-  const pengaturan = {
-    materiUmum: dataPengaturan[0][0] || 'Tes Formatif PJOK',
-    backgroundUrl: dataPengaturan[0][1] || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
-    token: (dataPengaturan[1] && dataPengaturan[1][1]) ? dataPengaturan[1][1].toString().trim() : '12345',
-    waktu: (dataPengaturan[2] && dataPengaturan[2][1]) ? parseInt(dataPengaturan[2][1], 10) : 60
-  };
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Pilih Kelas</label>
+          <select id="select-kelas" onchange="filterNama()" class="w-full bg-black bg-opacity-50 border border-gray-600 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 text-white appearance-none">
+            <option value="">-- Pilih Kelas --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap</label>
+          <select id="select-nama" onchange="setAutoAbsen()" class="w-full bg-black bg-opacity-50 border border-gray-600 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400 text-white appearance-none" disabled>
+            <option value="">-- Pilih Nama --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">No. Absen</label>
+          <input type="text" id="input-absen" readonly class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-xl px-4 py-3 text-gray-400 cursor-not-allowed" placeholder="Otomatis terisi">
+        </div>
+      </div>
+      <div class="flex justify-between pt-6 border-t border-white border-opacity-20 mt-4">
+        <button onclick="goToPage('welcome')" class="px-6 py-3 bg-transparent border border-white border-opacity-30 text-white rounded-full hover:bg-white hover:bg-opacity-10 transition-colors">Kembali</button>
+        <button onclick="startTest()" class="px-8 py-3 bg-yellow-500 text-black font-bold rounded-full hover:bg-yellow-400 transition-all shadow-lg flex items-center gap-2">
+          Masuk Ujian <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" /></svg>
+        </button>
+      </div>
+    </div>
 
-  // 2. Ambil Data Siswa
-  const sheetSiswa = ss.getSheetByName('DataSiswa');
-  if (!sheetSiswa) throw new Error("Sheet 'DataSiswa' tidak ditemukan.");
-  const dataSiswaRaw = sheetSiswa.getDataRange().getValues();
-  dataSiswaRaw.shift();
+    <!-- Halaman 3: Area Tes (CBT Layout) -->
+    <div id="page-test" class="hidden flex flex-col flex-1 overflow-hidden h-full">
+      <div class="flex justify-between items-start md:items-center border-b border-red-500 pb-3 flex-shrink-0 flex-col md:flex-row gap-2">
+        <div class="w-full md:w-auto flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-bold text-red-400 flex items-center gap-2">
+                <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
+                KEAMANAN AKTIF
+              </h2>
+              <p class="text-xs text-gray-400 hidden md:block" id="display-materi-aktif">Materi Ujian Aktif</p>
+            </div>
+        </div>
+        <div class="text-left md:text-right w-full md:w-auto flex justify-between items-center md:flex-col md:items-end bg-black bg-opacity-30 md:bg-transparent p-2 md:p-0 rounded-lg">
+          <div>
+            <p id="display-nama" class="font-semibold text-sm md:text-base"></p>
+            <p id="display-kelas" class="text-xs text-gray-400"></p>
+          </div>
+          <div class="flex gap-2 mt-1">
+            <button onclick="refreshApp()" class="px-2 md:px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs font-bold text-white transition-colors">Refresh</button>
+            <button onclick="requestExit()" class="px-2 md:px-3 py-1 bg-red-700 hover:bg-red-600 rounded text-xs font-bold text-white transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" /></svg> Keluar</button>
+          </div>
+        </div>
+      </div>
 
-  const kelasSet = new Set();
-  const siswaData = [];
+      <!-- TIMER & PROGRESS INFO -->
+      <div class="flex justify-between items-center bg-white bg-opacity-5 p-2 md:p-3 rounded-xl border border-white border-opacity-10 mt-2 md:mt-3 flex-shrink-0">
+        <div id="display-progress" class="font-bold text-gray-300 text-xs md:text-base">Soal - dari -</div>
+        <div class="flex items-center gap-1 md:gap-2 bg-red-900 bg-opacity-30 px-2 md:px-3 py-1 rounded-lg border border-red-500 border-opacity-30">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 text-red-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+           <div id="display-timer" class="text-lg md:text-2xl font-mono text-red-400 font-bold tracking-wider">00:00</div>
+        </div>
+      </div>
 
-  dataSiswaRaw.forEach(row => {
-    if (row[0] && row[1]) {
-      const kelas = row[0].toString().trim();
-      const nama = row[1].toString().trim();
-      const absen = row[2] ? row[2].toString().trim() : '-';
-      kelasSet.add(kelas);
-      siswaData.push({ kelas, nama, absen });
+      <!-- PANEL NAVIGASI NOMOR SOAL -->
+      <div class="mt-2 md:mt-3 flex-shrink-0">
+        <div class="flex justify-between items-end mb-1">
+          <p class="text-xs text-gray-400 font-semibold">Navigasi Soal (Geser untuk soal lain):</p>
+          <div class="flex gap-2">
+             <div class="flex items-center gap-1 text-[10px] text-gray-400"><span class="w-2 h-2 bg-green-600 rounded-full"></span> Dijawab</div>
+             <div class="flex items-center gap-1 text-[10px] text-gray-400"><span class="w-2 h-2 bg-gray-700 rounded-full"></span> Belum</div>
+          </div>
+        </div>
+        <div id="grid-nav" class="flex flex-row overflow-x-auto gap-2 py-2 pr-2 snap-x"></div>
+      </div>
+
+      <!-- AREA PERTANYAAN DAN JAWABAN (DIPISAH) -->
+      <div class="flex flex-col flex-1 mt-2 md:mt-3 bg-black bg-opacity-40 rounded-2xl border border-white border-opacity-10 overflow-hidden min-h-0">
+        <div class="bg-gray-800 bg-opacity-80 p-3 md:p-6 border-b border-gray-600 flex-shrink-0 max-h-[55%] overflow-y-auto shadow-md relative z-10">
+          <p id="question-text" class="font-medium text-sm md:text-lg leading-relaxed text-gray-100 animate-fade-in break-words"></p>
+        </div>
+        <div id="options-area" class="overflow-y-auto flex-1 p-3 md:p-5 space-y-2 md:space-y-3 relative"></div>
+      </div>
+
+      <!-- TOMBOL SEBELUMNYA & SELANJUTNYA -->
+      <div id="nav-buttons" class="pt-2 md:pt-4 mt-1 flex justify-between gap-3 md:gap-4 flex-shrink-0"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // Ganti dengan URL Web App Google Apps Script Anda (akhiran /exec)
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzm5b9IUtKY0ievkyKyV9jzPqGKXL8YEt3XRcADsJGBV92Awfyjs2pgUzIBcHTh1J_j/exec";
+
+    let appData = {};
+    let isTestActive = false;
+    let filteredSoal = [];
+    let currentQuestionIndex = 0;
+    let timerInterval;
+    let timeRemaining = 0;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(frequency, type, duration) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + duration);
     }
-  });
 
-  // 3. Ambil Soal & Daftar Materi (selalu baca isi terbaru sheet 'Soal')
-  const sheetSoal = ss.getSheetByName('Soal');
-  if (!sheetSoal) throw new Error("Sheet 'Soal' tidak ditemukan.");
-  const dataSoalRaw = sheetSoal.getDataRange().getValues();
-  dataSoalRaw.shift();
+    function playClickSound() { playBeep(600, 'sine', 0.1); }
+    function playWarningSound() { playBeep(300, 'square', 0.5); }
 
-  const soal = [];
-  const materiSet = new Set();
+    function shuffleArray(array) {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
 
-  dataSoalRaw.forEach((row, index) => {
-    if (row[3]) {
-      const materiTarget = row[2] ? row[2].toString().trim() : 'Umum';
-      if (materiTarget !== '') {
-        materiSet.add(materiTarget);
+    function loadLiveData() {
+      document.getElementById('loading-screen').classList.remove('hidden');
+      document.querySelector('.animate-spin').classList.remove('hidden');
+      document.getElementById('loading-text').innerText = "Menyinkronkan soal terbaru dari Spreadsheet...";
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run
+          .withSuccessHandler((data) => initializeUI(data, "Google Apps Script (Live)"))
+          .withFailureHandler(showError)
+          .getAppData();
+        return;
       }
 
-      soal.push({
-        idSoal: index,
-        no: row[0],
-        kelasTarget: row[1] ? row[1].toString().trim() : 'Semua',
-        materiTarget: materiTarget,
-        pertanyaan: row[3].toString(),
-        opsi: {
-          A: row[4] ? row[4].toString() : '',
-          B: row[5] ? row[5].toString() : '',
-          C: row[6] ? row[6].toString() : '',
-          D: row[7] ? row[7].toString() : '',
-          E: row[8] ? row[8].toString() : ''
-        },
-        gambar: row[10] ? row[10].toString().trim() : ''
+      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("MASUKKAN_URL_WEB_APP")) {
+        showError(new Error("URL Web App Google Apps Script belum diisi pada variabel GAS_WEB_APP_URL."));
+        return;
+      }
+
+      const freshUrl = `${GAS_WEB_APP_URL}${GAS_WEB_APP_URL.includes('?') ? '&' : '?'}mode=json&t=${Date.now()}`;
+      fetch(freshUrl, { method: 'GET', cache: 'no-store' })
+        .then(res => {
+          if (!res.ok) throw new Error("Gagal terhubung ke server Web App.");
+          return res.json();
+        })
+        .then(data => initializeUI(data, "Spreadsheet Langsung"))
+        .catch(err => showError(err));
+    }
+
+    function reloadSpreadsheetData() {
+      playClickSound();
+      loadLiveData();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadLiveData();
+      setTimeout(() => {
+        const container = document.getElementById('main-container');
+        container.classList.remove('scale-95', 'opacity-0');
+        container.classList.add('scale-100', 'opacity-100');
+      }, 100);
+      setupSecurity();
+    });
+
+    function showError(error) {
+      console.error(error);
+      const msg = error && error.message ? error.message : String(error);
+      document.getElementById('loading-text').innerHTML = `<span class="text-red-500 font-bold">Gagal Mengambil Data!</span><br><span class="text-sm text-gray-300">${msg}</span>`;
+      document.querySelector('.animate-spin').classList.add('hidden');
+      Swal.fire({ icon: 'error', title: 'Error', text: msg, background: '#1a202c', color: '#fff' });
+    }
+
+    function initializeUI(data, modeLabel = "") {
+      appData = data;
+      document.getElementById('loading-screen').classList.add('hidden');
+      document.getElementById('page-welcome').classList.remove('hidden');
+      document.getElementById('page-welcome').classList.add('flex');
+      document.getElementById('judul-materi').innerText = data.pengaturan.materiUmum;
+      if (modeLabel) document.getElementById('mode-badge').innerText = `Terhubung: ${modeLabel} • Total Soal: ${data.soal.length}`;
+      document.getElementById('app-background').style.backgroundImage = `url('${data.pengaturan.backgroundUrl}')`;
+
+      const selectKelas = document.getElementById('select-kelas');
+      selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+      data.kelas.forEach(k => {
+        const option = document.createElement('option');
+        option.value = k;
+        option.innerText = k;
+        selectKelas.appendChild(option);
+      });
+
+      const selectMateri = document.getElementById('select-materi');
+      selectMateri.innerHTML = '<option value="">-- Pilih Materi Ujian --</option>';
+      data.materiList.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m;
+        option.innerText = m;
+        selectMateri.appendChild(option);
       });
     }
-  });
 
-  return {
-    pengaturan: pengaturan,
-    kelas: Array.from(kelasSet).sort(),
-    materiList: Array.from(materiSet).sort(),
-    siswaData: siswaData,
-    soal: soal
-  };
-}
+    function goToPage(pageId) {
+      playClickSound();
+      ['welcome', 'identity', 'test'].forEach(p => {
+        const el = document.getElementById(`page-${p}`);
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      });
+      const target = document.getElementById(`page-${pageId}`);
+      target.classList.remove('hidden');
+      target.classList.add('flex');
+    }
 
-function submitAnswers(payload) {
-  try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheetJawaban = ss.getSheetByName('Jawaban');
-    if (!sheetJawaban) throw new Error("Sheet 'Jawaban' tidak ditemukan.");
-    const sheetSoal = ss.getSheetByName('Soal');
-    if (!sheetSoal) throw new Error("Sheet 'Soal' tidak ditemukan.");
-
-    const dataSoal = sheetSoal.getDataRange().getValues();
-    dataSoal.shift();
-
-    let benar = 0;
-    const totalSoal = payload.jawaban.length;
-
-    payload.jawaban.forEach((item) => {
-      const rowData = dataSoal[item.idSoal];
-      const kunci = rowData && rowData[9] ? rowData[9].toString().toUpperCase().trim() : '';
-
-      if (item.jawaban && kunci && item.jawaban.toUpperCase() === kunci) {
-        benar++;
+    function filterNama() {
+      const kelasSelected = document.getElementById('select-kelas').value;
+      const selectNama = document.getElementById('select-nama');
+      const inputAbsen = document.getElementById('input-absen');
+      
+      selectNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
+      inputAbsen.value = '';
+      
+      if (kelasSelected) {
+        selectNama.disabled = false;
+        const siswaKelas = appData.siswaData.filter(s => s.kelas === kelasSelected);
+        siswaKelas.forEach(s => {
+          const option = document.createElement('option');
+          option.value = s.nama;
+          option.innerText = s.nama;
+          option.dataset.absen = s.absen;
+          selectNama.appendChild(option);
+        });
+      } else {
+        selectNama.disabled = true;
       }
-    });
+    }
 
-    const skor = totalSoal > 0 ? ((benar / totalSoal) * 100).toFixed(2) : '0.00';
-    const timestamp = new Date();
+    function setAutoAbsen() {
+      const selectNama = document.getElementById('select-nama');
+      const inputAbsen = document.getElementById('input-absen');
+      const selectedOption = selectNama.options[selectNama.selectedIndex];
+      if (selectedOption && selectedOption.value !== "") inputAbsen.value = selectedOption.dataset.absen;
+      else inputAbsen.value = "";
+    }
 
-    const newRow = [
-      timestamp,
-      payload.status,
-      skor,
-      payload.identitas.materi,
-      payload.identitas.kelas,
-      payload.identitas.nama,
-      payload.identitas.absen
-    ];
+    function startTest() {
+      const materi = document.getElementById('select-materi').value;
+      const kelas = document.getElementById('select-kelas').value;
+      const nama = document.getElementById('select-nama').value;
 
-    payload.jawaban.forEach(j => {
-      newRow.push(j.jawaban);
-    });
+      if (!materi || !kelas || !nama) {
+        Swal.fire({ icon: 'warning', title: 'Akses Ditolak', text: 'Harap lengkapi Materi, Kelas, dan Nama Anda!', background: '#1a202c', color: '#fff', confirmButtonColor: '#eab308' });
+        return;
+      }
 
-    sheetJawaban.appendRow(newRow);
-    return { success: true, message: 'Jawaban tersimpan. Nilai: ' + skor };
-  } catch (error) {
-    return { success: false, message: error.toString() };
-  }
-}
+      filteredSoal = appData.soal.filter(s => {
+        const targetKelas = s.kelasTarget.toUpperCase().trim();
+        const kelasPilih = kelas.toUpperCase().trim();
+        const tingkatKelas = kelasPilih.split(/[\s-.]/)[0];
+        const matchKelas = targetKelas === kelasPilih || targetKelas === tingkatKelas || targetKelas === 'SEMUA' || targetKelas === '';
+
+        const targetMateri = s.materiTarget.toUpperCase().trim();
+        const materiPilih = materi.toUpperCase().trim();
+        const matchMateri = targetMateri === materiPilih || targetMateri === 'SEMUA' || targetMateri === '';
+
+        return matchKelas && matchMateri;
+      });
+
+      if (filteredSoal.length === 0) {
+        Swal.fire({ icon: 'info', title: 'Soal Tidak Ditemukan', text: `Belum ada soal ${materi} untuk kelas ${kelas}.`, background: '#1a202c', color: '#fff' });
+        return;
+      }
+
+      shuffleArray(filteredSoal);
+      filteredSoal.forEach(s => {
+        const validOptions = ['A', 'B', 'C', 'D', 'E'].filter(k => s.opsi[k]);
+        s.shuffledKeys = shuffleArray(validOptions);
+        s.jawabanSiswa = null;
+      });
+
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(()=>{});
+      }
+
+      currentQuestionIndex = 0;
+      document.getElementById('display-nama').innerText = nama;
+      document.getElementById('display-kelas').innerText = kelas;
+      document.getElementById('display-materi-aktif').innerText = `Mata Pelajaran: ${materi}`;
+
+      startTimer();
+      renderQuestion();
+      isTestActive = true;
+      goToPage('test');
+      
+      Swal.fire({
+        title: 'PERINGATAN KEAMANAN',
+        html: 'Ujian dimulai.<br><b>DILARANG</b>:<br>- Copy/Paste<br>- Keluar tab peramban<br><br>Pelanggaran = Ujian Langsung Selesai otomatis!',
+        icon: 'warning', background: '#1a202c', color: '#fff', confirmButtonColor: '#ef4444'
+      });
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      const menit = parseInt(appData.pengaturan.waktu, 10) || 60;
+      timeRemaining = menit * 60;
+      updateTimerUI();
+
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerUI();
+
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          triggerAutoSubmit("WAKTU UJIAN TELAH HABIS!");
+        }
+      }, 1000);
+    }
+
+    function updateTimerUI() {
+      const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+      const s = (timeRemaining % 60).toString().padStart(2, '0');
+      document.getElementById('display-timer').innerText = `${m}:${s}`;
+    }
+
+    function renderQuestion() {
+      const item = filteredSoal[currentQuestionIndex];
+      const formatTeks = (teks) => teks ? teks.replace(/\n/g, '<br>') : '';
+      
+      let questionHtml = `<span class="text-yellow-400 font-bold">${currentQuestionIndex + 1}.</span> ${formatTeks(item.pertanyaan)}`;
+      
+      if (item.gambar && item.gambar.startsWith('http')) {
+        questionHtml += `
+          <div class="mt-3 flex justify-center">
+            <img src="${item.gambar}" alt="Gambar Soal" class="max-w-full h-auto max-h-[150px] md:max-h-[300px] object-contain rounded-xl shadow-lg border border-gray-600 bg-black bg-opacity-50 p-1 animate-fade-in">
+          </div>
+        `;
+      }
+      
+      document.getElementById('question-text').innerHTML = questionHtml;
+      
+      const optionsArea = document.getElementById('options-area');
+      let optionsHtml = '';
+      
+      item.shuffledKeys.forEach(letter => {
+        const isChecked = item.jawabanSiswa === letter ? 'checked' : '';
+        optionsHtml += `
+          <label class="flex items-start space-x-2 md:space-x-3 p-3 md:p-4 rounded-xl border border-gray-600 bg-gray-800 bg-opacity-40 hover:bg-white hover:bg-opacity-10 cursor-pointer transition-colors group animate-fade-in shadow-sm">
+            <div class="flex-shrink-0 pt-0.5 md:pt-1">
+              <input type="radio" name="soal_aktif" value="${letter}" onchange="saveAnswer('${letter}')" class="w-4 h-4 md:w-5 md:h-5 accent-yellow-500 cursor-pointer" ${isChecked}>
+            </div>
+            <span class="text-sm md:text-base text-gray-200 w-full group-hover:text-white transition-colors leading-relaxed break-words">
+              ${formatTeks(item.opsi[letter])}
+            </span>
+          </label>
+        `;
+      });
+      optionsArea.innerHTML = optionsHtml;
+      optionsArea.scrollTop = 0;
+      document.getElementById('display-progress').innerText = `Soal ${currentQuestionIndex + 1} dari ${filteredSoal.length}`;
+
+      renderGridNav();
+      renderNavButtons();
+    }
+
+    function renderGridNav() {
+      const grid = document.getElementById('grid-nav');
+      grid.innerHTML = '';
+      
+      filteredSoal.forEach((s, idx) => {
+        const isAnswered = s.jawabanSiswa != null;
+        const isCurrent = idx === currentQuestionIndex;
+        let classes = "w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-sm md:text-base cursor-pointer transition-all snap-center ";
+        
+        if (isCurrent) classes += "bg-yellow-500 text-black border-2 border-white scale-105 shadow-lg";
+        else if (isAnswered) classes += "bg-green-600 text-white hover:bg-green-500";
+        else classes += "bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700";
+
+        grid.innerHTML += `<button onclick="jumpToQuestion(${idx})" class="${classes}">${idx + 1}</button>`;
+      });
+
+      const activeBtn = grid.children[currentQuestionIndex];
+      if (activeBtn) activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+
+    function renderNavButtons() {
+      const navButtons = document.getElementById('nav-buttons');
+      const isFirst = currentQuestionIndex === 0;
+      const isLast = currentQuestionIndex === filteredSoal.length - 1;
+
+      let btnPrev = `<button onclick="prevQuestion()" class="flex-1 py-2 md:py-4 bg-gray-700 text-white font-bold rounded-xl hover:bg-gray-600 transition-all text-sm md:text-base ${isFirst ? 'opacity-50 cursor-not-allowed' : ''}" ${isFirst ? 'disabled' : ''}>Kembali</button>`;
+      
+      let btnNext = '';
+      if (!isLast) {
+        btnNext = `<button onclick="nextQuestion()" class="flex-1 py-2 md:py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-all shadow-lg text-sm md:text-base">Selanjutnya</button>`;
+      } else {
+        btnNext = `<button onclick="confirmSubmit()" class="flex-1 py-2 md:py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 transition-all shadow-lg flex justify-center items-center gap-2 text-sm md:text-base">Kirim <span class="hidden md:inline">Jawaban</span> <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></button>`;
+      }
+
+      navButtons.innerHTML = `${btnPrev}${btnNext}`;
+    }
+
+    function saveAnswer(val) {
+      filteredSoal[currentQuestionIndex].jawabanSiswa = val;
+      renderGridNav();
+    }
+
+    function jumpToQuestion(idx) {
+      playClickSound();
+      currentQuestionIndex = idx;
+      renderQuestion();
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) jumpToQuestion(currentQuestionIndex - 1);
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < filteredSoal.length - 1) jumpToQuestion(currentQuestionIndex + 1);
+    }
+
+    function setupSecurity() {
+      document.addEventListener('contextmenu', event => event.preventDefault());
+      ['copy', 'cut', 'paste'].forEach(evt => {
+        document.addEventListener(evt, e => {
+          if (isTestActive) { e.preventDefault(); warnCheat('Tindakan dilarang!'); }
+        });
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && isTestActive) triggerAutoSubmit("Pelanggaran: Keluar tab/aplikasi.");
+      });
+      document.addEventListener('keydown', (e) => {
+        if (isTestActive) {
+          if ((e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'p' || e.key === 'r')) || e.key === 'F12') {
+            e.preventDefault();
+            warnCheat('Aksi keyboard diblokir!');
+          }
+        }
+      });
+      window.addEventListener('beforeunload', function (e) {
+        if (isTestActive) { e.preventDefault(); e.returnValue = ''; }
+      });
+    }
+
+    function warnCheat(pesan) {
+      playWarningSound();
+      Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'error', title: pesan, background: '#7f1d1d', color: '#fff' });
+    }
+
+    function triggerAutoSubmit(reason) {
+      isTestActive = false;
+      clearInterval(timerInterval);
+      playWarningSound();
+      
+      Swal.fire({
+        icon: 'error', title: 'SISTEM MENGUNCI', text: reason, allowOutsideClick: false, showConfirmButton: false, background: '#7f1d1d', color: '#fff',
+        didOpen: () => { Swal.showLoading(); executeSubmit('Dihentikan Sistem: ' + reason); }
+      });
+    }
+
+    function refreshApp() {
+      playClickSound();
+      Swal.fire({
+        title: 'Refresh Layar?', text: 'Hanya jika layar macet. Jawaban aman.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#3b82f6', cancelButtonColor: '#4b5563', confirmButtonText: 'Segarkan', background: '#1a202c', color: '#fff'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          renderQuestion();
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Disegarkan', showConfirmButton: false, timer: 1500, background: '#1a202c', color: '#fff' });
+        }
+      });
+    }
+
+    async function requestExit() {
+      playClickSound();
+      const { value: password } = await Swal.fire({
+        title: 'Akses Keluar', text: 'Masukkan token pengawas', input: 'password', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#4b5563', confirmButtonText: 'Keluar', background: '#1a202c', color: '#fff'
+      });
+      if (password) {
+        if (password === String(appData.pengaturan.token)) {
+          isTestActive = false;
+          clearInterval(timerInterval);
+          if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+          Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#1a202c', color: '#fff' });
+          executeSubmit('Selesai via Token Pengawas');
+        } else {
+          warnCheat('Token Salah!');
+        }
+      }
+    }
+
+    function confirmSubmit() {
+      playClickSound();
+      const unanswered = filteredSoal.filter(s => !s.jawabanSiswa).length;
+      
+      if (unanswered > 0) {
+        Swal.fire({
+          title: 'Belum Selesai!', text: `Masih ada ${unanswered} soal yang BELUM dijawab. Silakan lengkapi semua jawaban sebelum mengirim.`, icon: 'warning', confirmButtonColor: '#eab308', confirmButtonText: 'Lanjutkan', background: '#1a202c', color: '#fff'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Kirim Jawaban?', text: 'Anda telah menjawab semua soal. Yakin ingin mengirim sekarang?', icon: 'question', showCancelButton: true, confirmButtonColor: '#16a34a', cancelButtonColor: '#4b5563', confirmButtonText: 'Ya, Kirim', cancelButtonText: 'Cek Kembali', background: '#1a202c', color: '#fff'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          isTestActive = false;
+          clearInterval(timerInterval);
+          Swal.fire({ title: 'Mengirim Data...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#1a202c', color: '#fff' });
+          executeSubmit('Selesai Normal');
+        }
+      });
+    }
+
+    function executeSubmit(statusText) {
+      const jawabanArr = [];
+      const sortedSoal = [...filteredSoal].sort((a, b) => a.idSoal - b.idSoal);
+      sortedSoal.forEach((item) => {
+        jawabanArr.push({ idSoal: item.idSoal, jawaban: item.jawabanSiswa ? item.jawabanSiswa : '- Kosong -' });
+      });
+
+      const payload = {
+        status: statusText,
+        identitas: {
+          materi: document.getElementById('select-materi').value,
+          kelas: document.getElementById('select-kelas').value,
+          nama: document.getElementById('select-nama').value,
+          absen: document.getElementById('input-absen').value
+        },
+        jawaban: jawabanArr
+      };
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(onSuccessSubmit).withFailureHandler(showError).submitAnswers(payload);
+      } else {
+        fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        })
+        .then(() => {
+          onSuccessSubmit({
+            success: true,
+            message: 'Jawaban telah dikirim ke Google Spreadsheet.'
+          });
+        })
+        .catch(err => showError(err));
+      }
+    }
+
+    function onSuccessSubmit(response) {
+      if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+      if (response.success) {
+        Swal.fire({
+          icon: 'success', title: 'Terkirim!', text: response.message, confirmButtonColor: '#eab308', confirmButtonText: 'Kembali', allowOutsideClick: false, background: '#1a202c', color: '#fff'
+        }).then(() => {
+          currentQuestionIndex = 0; filteredSoal = []; goToPage('welcome');
+        });
+      } else {
+        Swal.fire('Error', 'Gagal: ' + response.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
