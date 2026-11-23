@@ -34,8 +34,8 @@
 
     <!-- Halaman 1: Welcome -->
     <div id="page-welcome" class="hidden flex-col items-center text-center space-y-6 flex-1 justify-center overflow-y-auto">
-      <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2 flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+      <div id="app-logo-welcome" class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2 flex-shrink-0 overflow-hidden p-2">
+        <svg id="default-logo-welcome" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
       </div>
       <h1 class="text-3xl md:text-5xl font-bold tracking-tight">Selamat Datang</h1>
       <p class="text-xl md:text-2xl font-light text-gray-300">Sistem Tes Formatif Terpadu</p>
@@ -53,9 +53,14 @@
       </div>
     </div>
 
-    <!-- Halaman 2: Identitas -->
-    <div id="page-identity" class="hidden flex-col space-y-4 flex-1 justify-center max-w-2xl mx-auto w-full">
-      <h2 class="text-2xl font-bold border-b border-white border-opacity-20 pb-4">Verifikasi & Pengaturan</h2>
+    <!-- Halaman 2: Verifikasi Identitas -->
+    <div id="page-identity" class="hidden flex-col space-y-4 flex-1 justify-center max-w-2xl mx-auto w-full overflow-y-auto py-2">
+      <div class="flex items-center gap-3 border-b border-white border-opacity-20 pb-4">
+        <div id="app-logo-identity" class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden p-1.5">
+          <svg id="default-logo-identity" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+        </div>
+        <h2 class="text-xl md:text-2xl font-bold">Verifikasi & Pengaturan</h2>
+      </div>
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-yellow-400 mb-1">Materi Ujian</label>
@@ -167,7 +172,7 @@
         </div>
 
         <div class="text-left bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl p-4 mt-3">
-          <p class="text-xs font-semibold text-yellow-400 uppercase tracking-wider mb-1">Umpan Balik</p>
+          <p class="text-xs font-semibold text-yellow-400 uppercase tracking-wider mb-1">Umpan Balik Otomatis</p>
           <p id="result-feedback" class="text-sm md:text-base text-gray-100 leading-relaxed"></p>
         </div>
       </div>
@@ -180,7 +185,7 @@
   </div>
 
   <script>
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyZ7oItHZ5CX-euNFDp6VvbHKDfPUVzQxHIamqGVjCpKilLQS0kVp3iqDBaYbmjJtNQ/exec";
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby5Hge5KsZKf2WlX-zVD0oaVHbPrzgeGNxsbRBhROzZoiVklwBtTctOtMWShfn9nO_i/exec";
 
     let appData = {};
     let isTestActive = false;
@@ -286,6 +291,36 @@
       Swal.fire({ icon: 'error', title: 'Error', text: text, background: '#1a202c', color: '#fff' });
     }
 
+    function renderLogoSlot(containerId, defaultSvgId, imgId, logoUrl) {
+      const container = document.getElementById(containerId);
+      const defaultSvg = document.getElementById(defaultSvgId);
+      const existingImg = document.getElementById(imgId);
+      if (existingImg) existingImg.remove();
+
+      if (logoUrl) {
+        const img = document.createElement('img');
+        img.id = imgId;
+        img.src = logoUrl;
+        img.alt = 'Logo Aplikasi';
+        img.className = 'w-full h-full object-contain';
+        img.onload = () => {
+          if (defaultSvg) defaultSvg.classList.add('hidden');
+        };
+        img.onerror = () => {
+          img.remove();
+          if (defaultSvg) defaultSvg.classList.remove('hidden');
+        };
+        container.appendChild(img);
+      } else if (defaultSvg) {
+        defaultSvg.classList.remove('hidden');
+      }
+    }
+
+    function applyLogo(logoUrl) {
+      renderLogoSlot('app-logo-welcome', 'default-logo-welcome', 'custom-logo-welcome', logoUrl);
+      renderLogoSlot('app-logo-identity', 'default-logo-identity', 'custom-logo-identity', logoUrl);
+    }
+
     function initializeUI(data) {
       appData = data;
       document.getElementById('loading-screen').classList.add('hidden');
@@ -294,6 +329,7 @@
       document.getElementById('judul-materi').innerText = data.pengaturan.materiUmum;
       document.getElementById('info-sync').innerText = `Tersinkronisasi • ${data.soal.length} Soal • Durasi ${data.pengaturan.waktu} Menit`;
       document.getElementById('app-background').style.backgroundImage = `url('${data.pengaturan.backgroundUrl}')`;
+      applyLogo(data.pengaturan.logoUrl);
 
       const selectKelas = document.getElementById('select-kelas');
       selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
